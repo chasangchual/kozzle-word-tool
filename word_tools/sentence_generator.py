@@ -3,7 +3,7 @@
 from typing import List
 
 from langchain_ollama import ChatOllama
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 
 
 class SentenceGenerator:

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install:*)",
+      "Bash(python -m word_tools.document_processor \"/Users/sangcha/temp/in\" -o /Users/sangcha/temp/out 2>&1)",
+      "Bash(ollama list:*)",
+      "Bash(python3 -c \"\nwith open\\('/Users/sangcha/temp/in/장길산 02  .txt', 'rb'\\) as f:\n    raw = f.read\\(100\\)\n    print\\(raw\\)\n    print\\([hex\\(b\\) for b in raw[:20]]\\)\n\")",
+      "Bash(python3 -c \"\nwith open\\('/Users/sangcha/temp/in/장길산 02  .txt', 'rb'\\) as f:\n    raw = f.read\\(\\)\nfor enc in ['euc-kr', 'cp949', 'euc-jp', 'latin-1']:\n    try:\n        text = raw.decode\\(enc\\)\n        print\\(f'{enc}: OK - first 50 chars: {text[:50]}'\\)\n    except Exception as e:\n        print\\(f'{enc}: FAIL - {e}'\\)\n\")",
+      "Bash(ollama pull:*)",
+      "Bash(python -m word_tools.document_processor \"/Users/sangcha/temp/in\" -o /Users/sangcha/temp/out -m \"exaone3.5:latest\" 2>&1)"
+    ]
+  }
+}

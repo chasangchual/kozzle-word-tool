@@ -6,6 +6,9 @@ import re
 from pathlib import Path
 from typing import Optional
 
+import ebooklib
+from ebooklib import epub
+from bs4 import BeautifulSoup
 from pypdf import PdfReader
 from docx import Document
 from konlpy.tag import Komoran
@@ -56,12 +59,21 @@ class DocumentProcessor:
             return self._read_pdf(path)
         elif ext == ".docx":
             return self._read_docx(path)
+        elif ext == ".epub":
+            return self._read_epub(path)
         else:
             raise ValueError(f"Unsupported file format: {ext}")
 
     def _read_txt(self, path: Path) -> str:
-        """Read text from UTF-8 encoded text file."""
-        with open(path, "r", encoding="utf-8") as f:
+        """Read text from a text file, trying common Korean encodings."""
+        for encoding in ("utf-8", "euc-kr", "cp949"):
+            try:
+                with open(path, "r", encoding=encoding) as f:
+                    return f.read()
+            except UnicodeDecodeError:
+                continue
+        # Last resort: use cp949 ignoring undecodable bytes
+        with open(path, "r", encoding="cp949", errors="ignore") as f:
             return f.read()
 
     def _read_pdf(self, path: Path) -> str:
@@ -78,20 +90,35 @@ class DocumentProcessor:
         text = "\n".join([paragraph.text for paragraph in doc.paragraphs])
         return text
 
-    def extract_nouns(self, text: str) -> list[str]:
-        """Extract nouns from Korean text."""
-        # Get POS (Part of Speech) tagged words
-        pos_tags = self.komoran.pos(text)
+    def _read_epub(self, path: Path) -> str:
+        """Read text from EPUB file."""
+        book = epub.read_epub(str(path))
+        texts = []
+        for item in book.get_items_of_type(ebooklib.ITEM_DOCUMENT):
+            soup = BeautifulSoup(item.get_content(), "html.parser")
+            texts.append(soup.get_text())
+        return "\n".join(texts)
 
-        # Filter for nouns (N tags)
+    def extract_nouns(self, text: str) -> list[str]:
+        """Extract nouns from Korean text, chunking large inputs for Komoran."""
+        chunk_size = 5000
         nouns = []
         seen = set()
-        for word, tag in pos_tags:
-            if tag.startswith("N") and len(word) > 1:
-                # Normalize by removing duplicates
-                if word not in seen:
+
+        for i in range(0, len(text), chunk_size):
+            chunk = text[i : i + chunk_size]
+            try:
+                pos_tags = self.komoran.pos(chunk)
+            except Exception:
+                continue
+
+            for word, tag in pos_tags:
+                if tag.startswith("N") and len(word) > 1 and word not in seen:
                     seen.add(word)
                     nouns.append(word)
+
+            if len(nouns) >= self.extract_noun_limit:
+                break
 
         return nouns[: self.extract_noun_limit]
 
@@ -159,7 +186,7 @@ class DocumentProcessor:
             Combined list of all results from all documents
         """
         directory_path = Path(directory)
-        supported_extensions = {".txt", ".pdf", ".docx"}
+        supported_extensions = {".txt", ".pdf", ".docx", ".epub"}
 
         all_results = []
         for file_path in sorted(directory_path.iterdir()):
