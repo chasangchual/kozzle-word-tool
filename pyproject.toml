@@ -1,0 +1,24 @@
+[project]
+name = "kozzle-word-tools"
+version = "0.1.0"
+description = "Korean document processing and audio generation tools"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pypdf>=4.0.0",
+    "python-docx>=1.1.0",
+    "konlpy>=0.6.0",
+    "langchain>=0.1.0",
+    "langchain-community>=0.0.0",
+    "langchain-ollama>=0.1.0",
+    "pyttsx3>=2.90",
+    "soundfile>=0.12.0",
+    "tqdm>=4.66.0",
+]
+
+[project.scripts]
+word-tools = "word_tools.document_processor:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
