@@ -9,7 +9,7 @@ from langchain_core.prompts import ChatPromptTemplate
 class SentenceGenerator:
     """Generate sentences using a language model."""
 
-    def __init__(self, model: str = "llama3:ko"):
+    def __init__(self, model: str = "exaone3.5:latest"):
         """
         Initialize the sentence generator.
 

@@ -22,7 +22,7 @@ class DocumentProcessor:
 
     def __init__(
         self,
-        ollama_model: str = "llama3:ko",
+        ollama_model: str = "exaone3.5:latest",
         output_dir: str = "./output",
         extract_noun_limit: int = 20,
     ):
@@ -215,7 +215,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-m",
         "--model",
-        default="llama3:ko",
+        default="exaone3.5:latest",
         help="Ollama model name",
     )
     parser.add_argument(
@@ -260,7 +260,7 @@ def main():
     parser.add_argument(
         "-m",
         "--model",
-        default="llama3:ko",
+        default="exaone3.5:latest",
         help="Ollama model name",
     )
     parser.add_argument(
